@@ -1,0 +1,41 @@
+server:
+  port: 8082
+  servlet:
+    context-path: /
+spring:
+  application:
+    name: zhanzhan-gateway
+  cloud:
+    nacos:
+      discovery:
+        #gateway工程注册到nacos上的地址
+        server-addr: localhost:8848
+
+    gateway:
+      discovery:
+        locator:
+          #开启gateway从nacos上获取服务列表
+          enabled: false
+      globalcors:
+        # gateway 跨域设置
+        cors-configurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedHeaders: "*"
+            allowCredentials: true
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - OPTIONS
+      routes:
+        # 采用自定义路由 ID
+        - id: zhanzhan_admin
+        # 采用 LoadBalanceClient 方式请求，以 lb:// 开头，后面的是注册在 Nacos 上的服务名
+  #        uri: lb://zhanzhan-admin
+          uri: http://localhost:8081
+          predicates:
+            - Path=/admin/user/**       #断言，路径相匹配的进行路由
+          # 前缀过滤
+          filters:
+            - StripPrefix=1
